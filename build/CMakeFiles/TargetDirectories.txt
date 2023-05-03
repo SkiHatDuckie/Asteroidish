@@ -1,0 +1,5 @@
+C:/Users/Conno/VSCodeProjects/Asteroidish/build/CMakeFiles/edit_cache.dir
+C:/Users/Conno/VSCodeProjects/Asteroidish/build/CMakeFiles/asteroidish.dir
+C:/Users/Conno/VSCodeProjects/Asteroidish/build/CMakeFiles/package.dir
+C:/Users/Conno/VSCodeProjects/Asteroidish/build/CMakeFiles/package_source.dir
+C:/Users/Conno/VSCodeProjects/Asteroidish/build/CMakeFiles/rebuild_cache.dir
