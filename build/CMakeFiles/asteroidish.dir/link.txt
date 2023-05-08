@@ -1,3 +1,0 @@
-"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E rm -f CMakeFiles\asteroidish.dir/objects.a
-C:\dev\msys64\mingw64\bin\ar.exe cr CMakeFiles\asteroidish.dir/objects.a @CMakeFiles\asteroidish.dir\objects1.rsp
-C:\dev\msys64\mingw64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\asteroidish.dir/objects.a -Wl,--no-whole-archive -o asteroidish.exe -Wl,--out-implib,libasteroidish.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\asteroidish.dir\linklibs.rsp

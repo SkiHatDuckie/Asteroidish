@@ -1,7 +1,0 @@
-[
-{
-  "directory": "C:/Users/Conno/VSCodeProjects/Asteroidish/build",
-  "command": "C:\\dev\\msys64\\mingw64\\bin\\g++.exe   -g -o CMakeFiles\\asteroidish.dir\\src\\main.cpp.obj -c C:\\Users\\Conno\\VSCodeProjects\\Asteroidish\\src\\main.cpp",
-  "file": "C:/Users/Conno/VSCodeProjects/Asteroidish/src/main.cpp"
-}
-]
