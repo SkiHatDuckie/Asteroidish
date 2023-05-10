@@ -1,6 +1,6 @@
-#include <iostream>
+#include "bgfx/bgfx.h"
 
 int main() {
-    std::cout << "Testing, testing, 1 2 3.\n";
+    bgfx::init();
     return 0;
 }
