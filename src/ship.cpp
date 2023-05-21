@@ -3,10 +3,11 @@
 using namespace asteroidish;
 
 float Ship::vertices[] = {
-    -0.25f, -0.5f, 0.0f,
-     0.0f , -0.4f, 0.0f,
-     0.0f ,  0.5f, 0.0f,
-     0.25f, -0.5f, 0.0f,
+    // Postions          // Colors
+    -0.25f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f,
+     0.0f , -0.4f, 0.0f, 1.0f, 1.0f, 1.0f,
+     0.0f ,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f,
+     0.25f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f,
 };
 unsigned int Ship::indices[] = {
     0, 1, 2,
