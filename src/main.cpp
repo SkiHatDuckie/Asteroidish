@@ -2,24 +2,20 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "error.h"
+#include "game.h"
+#include "resource_manager.h"
 
 #include <iostream>
 
-#include "error.h"
-#include "input.h"
-#include "shader.h"
-#include "ship.h"
+// GLFW function declarations
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
-// Used to properly resize the window
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
-};
+const unsigned int SCREEN_WIDTH = 800;
+const unsigned int SCREEN_HEIGHT = 600;
 
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+asteroidish::Game game_env(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 int main() {
     // GLFW: Initialize/Configure
@@ -28,10 +24,14 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    #ifdef __APPLE__
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    #endif
+    glfwWindowHint(GLFW_RESIZABLE, false);
 
     // Window creation
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH,
-                                          SCR_HEIGHT,
+    GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH,
+                                          SCREEN_HEIGHT,
                                           "Asteroidish",
                                           NULL,
                                           NULL);
@@ -41,87 +41,73 @@ int main() {
         return -1;
     }
     glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSwapInterval(1);
 
-    // Open all OpenGL function pointers with glad
+    // glad: Open all OpenGL function pointers
     if (!gladLoadGL(glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSwapInterval(1);
 
-    // Build and compile shader program
-    asteroidish::Shader shaderProgram = asteroidish::Shader("src/shader.vs", "src/shader.fs");
+    // OpenGL configuration
+    glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Set up vertex data and buffer(s) and configure vertx attributes
-    unsigned int VBO, VAO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
+    // Initialize game
+    game_env.init();
 
-    // Initialize game objects and Asteroidish modules
-    asteroidish::init_input(window);
-    asteroidish::Ship ship = asteroidish::Ship();
-
-    // Bind vertex array, then bind an set the vertex buffer(s),
-    // then configure attributes.
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER,
-                 ship.get_vertices_size(),
-                 ship.get_vertices(),
-                 GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 ship.get_indices_size(),
-                 ship.get_indices(),
-                 GL_STATIC_DRAW);
-    // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    // Color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    // Draw wireframe shapes
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // Delta time variables
+    float delta_time = 0.0f;
+    float last_frame = 0.0f;
 
     // Render loop
     while (!glfwWindowShouldClose(window)) {
-        // Update window
-        int width, height;
-        glfwGetFramebufferSize(window, &width, &height);
-        glViewport(0, 0, width, height);
+        // Calculate delta time
+        float current_frame = glfwGetTime();
+        delta_time = current_frame - last_frame;
+        last_frame = current_frame;
+        glfwPollEvents();
+
+        // Manage user input
+        game_env.process_input(delta_time);
+
+        // Update game state
+        game_env.update(delta_time);
 
         // Render
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        game_env.render();
 
-        // Create transformations
-        glm::mat4 trans = glm::mat4(1.0f);
-        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-
-        // Render ship
-        shaderProgram.use();
-        unsigned int transformLoc = glGetUniformLocation(shaderProgram.ID, "transform");
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
-        glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES,
-                       ship.get_indices_size() / sizeof(int),
-                       GL_UNSIGNED_INT,
-                       0);
-
-        // GLFW: Swap buffers and poll IO events
         glfwSwapBuffers(window);
-        glfwPollEvents();    
     }
 
     // Cleanup
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
-
+    asteroidish::ResourceManager::clear();
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
+    // When a user presses the escape key,
+    // we set the WindowShouldClose property to true, closing the application.
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window, true);
+    }
+    if (key >= 0 && key < 1024) {
+        if (action == GLFW_PRESS) {
+            game_env.keys[key] = true;
+        } else if (action == GLFW_RELEASE) {
+            game_env.keys[key] = false;
+        }
+    }
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+    // Make sure the viewport matches the new window dimensions; note that width and 
+    // height will be significantly larger than specified on retina displays.
+    glViewport(0, 0, width, height);
 }
