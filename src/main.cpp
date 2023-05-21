@@ -2,6 +2,10 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <iostream>
 
 #include "error.h"
@@ -47,7 +51,7 @@ int main() {
     }
 
     // Build and compile shader program
-    asteroidish::Shader shaderProgram = asteroidish::Shader("shader.vs", "shader.fs");
+    asteroidish::Shader shaderProgram = asteroidish::Shader("src/shader.vs", "src/shader.fs");
 
     // Set up vertex data and buffer(s) and configure vertx attributes
     unsigned int VBO, VAO, EBO;
@@ -93,14 +97,19 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        // Create transformations
+        glm::mat4 trans = glm::mat4(1.0f);
+        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+
         // Render ship
         shaderProgram.use();
+        unsigned int transformLoc = glGetUniformLocation(shaderProgram.ID, "transform");
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES,
-                       ship.get_indices_size() / 4,
+                       ship.get_indices_size() / sizeof(int),
                        GL_UNSIGNED_INT,
                        0);
-        glBindVertexArray(0);
 
         // GLFW: Swap buffers and poll IO events
         glfwSwapBuffers(window);
