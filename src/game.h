@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ship.h"
+
 namespace asteroidish {
     // Represents the current state of the game
     enum GameState {
@@ -9,9 +11,11 @@ namespace asteroidish {
     class Game {
         public:
             // Game state
-            GameState    state;	
-            bool         keys[1024];
+            GameState state;	
+            bool keys[1024];
             unsigned int width, height;
+            // Game objects
+            Ship player;
             // Constructor/Destructor
             Game(unsigned int width, unsigned int height);
             ~Game();

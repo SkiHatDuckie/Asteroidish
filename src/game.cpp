@@ -29,6 +29,12 @@ void Game::init() {
     // Set render-specific controls
     Shader sprite_shader = ResourceManager::get_shader("sprite");
     renderer = new SpriteRenderer(sprite_shader);
+    // Initialize VAOs and VBOs for each game objects
+    renderer->init_vertex_data(Ship::vertices, Ship::vertices_size, Ship::VBO, Ship::VAO);
+    // Initialize game objects
+    this->player = Ship(glm::vec2(200.0f, 200.0f),
+                        glm::vec2(200.0f, 200.0f),
+                        glm::vec3(1.0f, 1.0f, 1.0f));
 }
 
 void Game::update(float dt) {}
@@ -36,8 +42,5 @@ void Game::update(float dt) {}
 void Game::process_input(float dt) {}
 
 void Game::render() {
-    renderer->draw_sprite(glm::vec2(200.0f, 200.0f),
-                          glm::vec2(200.0f, 200.0f),
-                          0.0f,
-                          glm::vec3(1.0f, 1.0f, 1.0f));
+    player.draw(*renderer);
 }
